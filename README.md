@@ -185,8 +185,11 @@ def detect_lane_lines(self,image):
 
 ```
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/B-mEmXx4xZ4/0.jpg)](https://www.youtube.com/embed/B-mEmXx4xZ4?ecver=1)
 
+<!-- 
 <iframe width="854" height="480" src="https://www.youtube.com/embed/B-mEmXx4xZ4?ecver=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+ -->
 ---
 
 ### Discussion
