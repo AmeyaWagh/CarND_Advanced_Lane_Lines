@@ -1,6 +1,9 @@
 
 
 # **Advanced Lane Finding Project**
+
+<img src=./assets/AdvancedLaneLines.gif width="800" height="600">
+
 ---
 
 The goals / steps of this project are the following:
@@ -48,7 +51,7 @@ Following are some examples of distortion corrected images
 
 #### 1. Provide an example of a distortion-corrected image.
 
-<img src=./assets/undist_lane.png width="800" height="600">
+This is shown in the previous example
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -98,18 +101,66 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+<!-- Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this: -->
+I used the sliding window approach to compute the first set of curves and then just used the previous curve parameters to detect new curves.
+
+`get_lanes` uses multiple windows along y axis defined by `LaneDetector.n_windows` and uses sliding window approach to find the lane points. `numpy.polyfit` is the used to find the curve parameters `left_fit,right_fit`. 
+
+```python
+(left_fit,right_fit, ploty),road_attributes,_ = LaneDetector.get_lanes(binary_warped)
+```
+
+`get_lanes_without_window_search` uses the `left_fit,right_fit` from the previous detected curves and computes new curve params by looking around the old curve 
+
+```python
+(left_fit,right_fit, ploty),road_attributes,_ = LaneDetector.get_lanes_without_window_search(binary_warped)
+```
+
+Finally `get_road` is used to return an unwarped final image with lane drawn over it. 
+
 
 <img src=./assets/lines_detected.png width="800" height="600">
 
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+##### Lane Curvature
+We know the equation of curve is defined by:
+
+<img src=./assets/equation_of_curve.png width="300" height="50">
+
+and we computed the lane parameters `left_fit,right_fit` which gives `A_left,B_left,C_left` and `A_right,B_right,C_right` respectively. 
+
+The real world scaling factors are defined as:
+```python
+ym_per_pix = 30/720, 
+xm_per_pix = 3.7/700
+```
+
+considering maximum y-coordinate, we the radius is computed by the following formula
+<img src=./assets/equation1.png width="300" height="100">
+
+##### Distance from center
+Its is calculated by
+```python
+car_position = self.xm_per_pix*width/2
+road_center = (true_left_x + true_right_x)/2
+dist_from_center = road_center - car_position
+```
+where `true_left_x , true_right` are real world x- measurements at maximum y.
+
+
+The complute lane attributes are stored as a dictionary
+```python
+road_attributes = {
+					'radius_of_curvature':(left_curverad+right_curverad)/2.0,
+                    'dist_from_center':dist_from_center
+                  }
+```
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+The `get_road` method from `LaneDetector` class returns final image with lanes draw over it and annotated with lane attributes such as `lane curvature` and `distance from center` 
 
 <img src=./assets/final_image.png width="800" height="600">
 
@@ -141,8 +192,6 @@ def detect_lane_lines(self,image):
 
 ```
 
-
-<img src=./assets/AdvancedLaneLines.gif width="800" height="600">
 
 Here's a [link to my video result](https://www.youtube.com/watch?v=B-mEmXx4xZ4)
 
